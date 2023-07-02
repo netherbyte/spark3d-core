@@ -1,11 +1,18 @@
 package com.netherbyte.spark3d.core.engine;
 
-import com.netherbyte.spark3d.core.client.Launcher;
 import com.netherbyte.spark3d.core.display.WindowManager;
+import com.netherbyte.spark3d.core.util.ILogic;
+import com.netherbyte.spark3d.test.client.main.Main;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.netherbyte.spark3d.core.ModuleConstants.NAME;
 
 public class EngineManager {
+    private static final Logger logger = LoggerFactory.getLogger(NAME);
+
     public static final long NANOSECOND = 1000000000L;
     public static final float FRAMERATE = 1000;
 
@@ -16,20 +23,26 @@ public class EngineManager {
 
     private WindowManager window;
     private GLFWErrorCallback errorCallback;
+    private ILogic gameLogic;
 
     private void init() throws Exception {
+        logger.info("Initializing engine");
         GLFW.glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
-        window = Launcher.getWindow();
+        window = Main.getWindow();
+        gameLogic = Main.getGame();
         window.init();
+        gameLogic.init();
     }
 
     public void start() throws Exception {
         init();
         if (isRunning) return;
+        logger.info("Starting engine");
         run();
     }
 
     public void run() {
+        logger.info("Running engine");
         this.isRunning = true;
         int frames = 0;
         long frameCounter = 0;
@@ -72,23 +85,27 @@ public class EngineManager {
 
     private void stop() {
         if (!isRunning) return;
+        logger.info("Stopping engine");
         isRunning = false;
     }
 
     private void input() {
-
+        gameLogic.input();
     }
 
     private void render() {
+        gameLogic.render();
         window.update();
     }
 
     private void update() {
-
+        gameLogic.update();
     }
 
     private void cleanup() {
+        logger.info("Cleaning up engine");
         window.cleanup();
+        gameLogic.cleanup();
         errorCallback.free();
         GLFW.glfwTerminate();
     }
