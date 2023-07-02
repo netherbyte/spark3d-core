@@ -1,0 +1,4 @@
+rootProject.name = 'spark3d-core'
+include 'src:test'
+findProject(':src:test')?.name = 'test'
+
